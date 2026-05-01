@@ -1,0 +1,18 @@
+[
+  {
+    "id": 1,
+    "title": "Homebrew Game 1",
+    "description": "Fajna gierka homebrew",
+    "icon": "/icons/game1.bmp",
+    "url": "/roms/game1.nds",
+    "size": "1.2MB"
+  },
+  {
+    "id": 2,
+    "title": "Homebrew Game 2",
+    "description": "Inna gierka",
+    "icon": "/icons/game2.bmp",
+    "url": "/roms/game2.nds",
+    "size": "512KB"
+  }
+]

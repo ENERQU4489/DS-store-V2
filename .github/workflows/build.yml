@@ -19,6 +19,7 @@ jobs:
           git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
 
       - name: Compile NDS
+        working-directory: ./client
         run: |
           make
 
@@ -26,4 +27,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: NDSStore-Binary
-          path: NDSStore.nds
+          path: client/NDSStore.nds

@@ -3,8 +3,6 @@ name: Build NDS App
 on:
   push:
     branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
 
 jobs:
   build:
@@ -14,28 +12,19 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Fix permissions
+      - name: Install NDS Dev
         run: |
-          git config --global --add safe.directory /__w/${{ github.event.repository.name }}/${{ github.event.repository.name }}
+          # W niektorych obrazach trzeba recznie doinstalowac biblioteki
+          sudo dkp-pacman -Syyu --noconfirm nds-dev
 
-      - name: Debug and Compile
+      - name: Compile NDS
         working-directory: ./client
         run: |
-          echo "--- SZUKAM REGUŁ ---"
-          find /opt/devkitpro -name "nds_rules"
-          echo "--- ZMIENNE ---"
-          export DEVKITPRO=/opt/devkitpro
-          export DEVKITARM=/opt/devkitpro/devkitARM
-          export PATH=$PATH:$DEVKITARM/bin
-          echo "DEVKITPRO: $DEVKITPRO"
-          echo "DEVKITARM: $DEVKITARM"
-          
-          # Proba kompilacji z wstrzyknieciem poprawnej sciezki jesli find cos znajdzie
-          RULES_PATH=$(find /opt/devkitpro -name "nds_rules")
-          if [ -f "$RULES_PATH" ]; then
-            echo "Znaleziono reguly w: $RULES_PATH"
-            # Nadpisujemy sciezke w Makefile "w locie"
-            sed -i "s|include.*nds_rules|include $RULES_PATH|g" Makefile
-          fi
-          
+          source /etc/profile.d/devkitpro.sh
           make
+
+      - name: Archive production artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: NDSStore-Binary
+          path: client/NDSStore.nds

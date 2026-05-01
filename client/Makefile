@@ -1,40 +1,30 @@
 #---------------------------------------------------------------------------------
-# NDS Store Makefile
+# NDS Store Makefile - Uniwersalny
 #---------------------------------------------------------------------------------
 
-ifeq ($(strip $(DEVKITARM)),)
-$(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
+# Proba automatycznego znalezienia DEVKITARM jesli nie jest ustawione
+ifeq ($(strip $(DEVKITPRO)),)
+	$(error "Prose ustawic DEVKITPRO w srodowisku")
 endif
 
-include $(DEVKITARM)/nds_rules
+include $(DEVKITPRO)/devkitARM/nds_rules
 
-# Target name
 TARGET		:=	NDSStore
-# Source directories
 SOURCES		:=	source
-# Data directories (for binary files like graphics)
 DATA		:=	data
-# Include directories
 INCLUDES	:=	include
-
-# Build directory
 BUILD		:=	build
-# Output directory
 export OUTPUT	:=	$(CURDIR)
 
-# Compilation flags
 ARCH	:=	-mthumb -mthumb-interwork
 CFLAGS	:=	$(ARCH) -O2 -Wall -fomit-frame-pointer -ffast-math \
-			$(include $(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir))) \
+			$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 			-DARM9
 ASFLAGS	:=	$(ARCH) -march=armv5te -mtune=arm946e-s
 LDFLAGS	:=	$(ARCH) -Wl,-Map,$(notdir $*.map)
 
-# Libraries
 LIBS	:=	-lnds9 -ldswifi9 -lfat
 
-#---------------------------------------------------------------------------------
-# Build rules
 #---------------------------------------------------------------------------------
 export VPATH	:=	$(foreach dir,$(SOURCES),$(CURDIR)/$(dir)) \
 					$(foreach dir,$(DATA),$(CURDIR)/$(dir))
@@ -43,16 +33,9 @@ export DEPSDIR	:=	$(CURDIR)/$(BUILD)
 CFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.c)))
 CPPFILES	:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.cpp)))
 SFILES		:=	$(foreach dir,$(SOURCES),$(notdir $(wildcard $(dir)/*.s)))
-BINFILES	:=	$(foreach dir,$(DATA),$(notdir $(wildcard $(dir)/*.*)))
 
-ifeq ($(strip $(CPPFILES)),)
-	export LD	:=	$(CC)
-else
-	export LD	:=	$(CXX)
-endif
-
-export OFILES	:=	$(BINFILES:.bin=.o) $(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o)
-export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
+export LD	:=	$(CXX)
+export OFILES	:=	$(SFILES:.s=.o) $(CFILES:.c=.o) $(CPPFILES:.cpp=.o)
 
 .PHONY: all clean
 
@@ -68,12 +51,12 @@ $(TARGET).arm9: $(TARGET).elf
 	@$(OBJCOPY) -O binary $< $@
 
 $(TARGET).elf: $(OFILES)
-	@$(LD) $(LDFLAGS) $(OFILES) $(LIBPATHS) $(LIBS) -o $@
+	@$(LD) $(LDFLAGS) $(OFILES) $(LIBS) -o $@
 
 clean:
 	@rm -rf $(BUILD) $(TARGET).nds $(TARGET).elf $(TARGET).arm9
 
-# Pattern rules for object files
+# Pattern rules
 %.o: %.cpp
 	@echo $(notdir $<)
 	@$(CXX) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) $(CXXFLAGS) -c $< -o $@
@@ -81,9 +64,5 @@ clean:
 %.o: %.c
 	@echo $(notdir $<)
 	@$(CC) -MMD -MP -MF $(DEPSDIR)/$*.d $(CFLAGS) -c $< -o $@
-
-%.o: %.s
-	@echo $(notdir $<)
-	@$(AS) $(ASFLAGS) $< -o $@
 
 -include $(DEPSDIR)/*.d

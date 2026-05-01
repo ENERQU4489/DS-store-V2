@@ -21,6 +21,9 @@ jobs:
       - name: Compile NDS
         working-directory: ./client
         run: |
+          export DEVKITPRO=/opt/devkitpro
+          export DEVKITARM=/opt/devkitpro/devkitARM
+          export PATH=$PATH:$DEVKITARM/bin
           make
 
       - name: Archive production artifacts

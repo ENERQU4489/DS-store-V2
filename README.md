@@ -32,4 +32,4 @@ Aplikacja korzysta z ustawień WiFi zapisanych w konsoli (WFC).
 * Interfejs: Góra/Dół (Wybór), (A) Szczegóły/Pobierz, (B) Powrót.
 
 ---
-*Projekt stworzony z pomocą Gemini CLI.*
+*Projekt stworzony przez 4489.*
